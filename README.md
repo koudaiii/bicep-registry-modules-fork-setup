@@ -1,59 +1,61 @@
 # Bicep Registry Modules Fork Setup
 
-Azure Verified Modules (AVM) Bicep プロジェクトへの貢献を開始するために必要なすべてのセットアップを自動化するスクリプトです。
+[日本語](./README_ja.md)
 
-## 概要
+A script that automates all the necessary setup to start contributing to the Azure Verified Modules (AVM) Bicep project.
 
-このスクリプトは以下の処理を自動化します：
+## Overview
 
-- Azure/bicep-registry-modules リポジトリのフォーク作成
-- ローカルへのクローン
-- Azure サービスプリンシパル（SPN）またはユーザー割り当てマネージドアイデンティティ（UAMI）の作成
-- GitHub Actions 用の認証設定（OIDC または従来の認証）
-- GitHub リポジトリのシークレット設定
-- ワークフローの有効化と設定
+This script automates the following processes:
 
-## 前提条件
+- Fork creation of the Azure/bicep-registry-modules repository
+- Local cloning
+- Creation of Azure Service Principal (SPN) or User Assigned Managed Identity (UAMI)
+- Authentication setup for GitHub Actions (OIDC or legacy authentication)
+- GitHub repository secrets configuration
+- Workflow enablement and configuration
 
-以下のツールがインストールされ、適切に設定されている必要があります：
+## Prerequisites
+
+The following tools must be installed and properly configured:
 
 - [GitHub CLI (gh)](https://github.com/cli/cli#installation)
 - [Azure CLI (az)](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 - [jq](https://stedolan.github.io/jq/download/)
 
-また、以下の認証が完了している必要があります：
+The following authentication must also be completed:
 
 - GitHub CLI: `gh auth login`
 - Azure CLI: `az login`
 
-## 使用方法
+## Usage
 
-リポジトリのルートディレクトリから以下のコマンドを実行してください：
+Run the following command from the repository root directory:
 
 ```bash
 ./script/fork-setup.sh [OPTIONS]
 ```
 
-### 必須パラメータ
+### Required Parameters
 
-- `--repo-path <path>`: フォークしたリポジトリをクローンするパス（ディレクトリが存在しない場合は作成されます）
-- `--subscription-id <id>`: テストデプロイメント用の Azure サブスクリプション ID
-- `--tenant-id <id>`: Azure テナント ID
-- `--token-nameprefix <prefix>`: リソース命名用の短い（3-5 文字）ユニークな文字列
+- `--repo-path <path>`: Path to clone the forked repository (directory will be created if it doesn't exist)
+- `--subscription-id <id>`: Azure subscription ID for test deployments
+- `--tenant-id <id>`: Azure tenant ID
+- `--token-nameprefix <prefix>`: Short (3-5 character) unique string for resource naming
 
-### オプションパラメータ
+### Optional Parameters
 
-- `--mgmt-group-id <id>`: 管理グループスコープのデプロイメント用管理グループ ID
-- `--spn-name <name>`: サービスプリンシパル名（非 OIDC、非推奨）
-- `--uami-name <name>`: ユーザー割り当てマネージドアイデンティティ名
-- `--uami-rsg-name <name>`: UAMI 用リソースグループ名（デフォルト: rsg-avm-bicep-brm-fork-ci-oidc）
-- `--uami-location <location>`: UAMI とリソースグループの場所
-- `--use-oidc <true|false>`: OIDC 認証を使用するか（デフォルト: true）
-- `--help`: ヘルプメッセージを表示
+- `--mgmt-group-id <id>`: Management group ID for management group scoped deployments
+- `--spn-name <name>`: Service Principal name (for non-OIDC, deprecated)
+- `--uami-name <name>`: User Assigned Managed Identity name
+- `--uami-rsg-name <name>`: Resource Group name for UAMI (default: rsg-avm-bicep-brm-fork-ci-oidc)
+- `--uami-location <location>`: Location for UAMI and Resource Group
+- `--use-oidc <true|false>`: Use OIDC authentication (default: true)
+- `--help`: Show help message
 
-## 使用例
+## Examples
 
-### OIDC 認証でサブスクリプションと管理グループスコープのデプロイメント
+### OIDC authentication with subscription and management group scoped deployments
 
 ```bash
 ./script/fork-setup.sh \
@@ -65,7 +67,7 @@ Azure Verified Modules (AVM) Bicep プロジェクトへの貢献を開始する
   --uami-location "uksouth"
 ```
 
-### カスタム UAMI 名での OIDC 認証
+### OIDC authentication with custom UAMI name
 
 ```bash
 ./script/fork-setup.sh \
@@ -78,7 +80,7 @@ Azure Verified Modules (AVM) Bicep プロジェクトへの貢献を開始する
   --uami-rsg-name "my-uami-rsg-name"
 ```
 
-### 非 OIDC 認証（非推奨）
+### Non-OIDC authentication (deprecated)
 
 ```bash
 ./script/fork-setup.sh \
@@ -89,46 +91,47 @@ Azure Verified Modules (AVM) Bicep プロジェクトへの貢献を開始する
   --use-oidc false
 ```
 
-## スクリプトの動作
+## Script Operation
 
-1. **前提条件チェック**: GitHub CLI、Azure CLI の認証状態を確認
-2. **リポジトリフォーク**: Azure/bicep-registry-modules をフォークしてローカルにクローン
-3. **Azure 認証設定**:
-   - OIDC 使用時: ユーザー割り当てマネージドアイデンティティとフェデレーテッド資格情報を作成
-   - 非 OIDC 使用時: サービスプリンシパルを作成
-4. **RBAC 設定**: 必要なスコープ（サブスクリプション、管理グループ）に Owner ロールを割り当て
-5. **GitHub 設定**:
-   - リポジトリシークレットの設定
-   - 環境（avm-validation）の作成
-   - ワークフローの有効化
-6. **ワークフロー設定**: すべてのワークフローを無効化（貢献ガイドラインに従って）
+1. **Prerequisites Check**: Verify GitHub CLI and Azure CLI authentication status
+2. **Repository Fork**: Fork Azure/bicep-registry-modules and clone locally
+3. **Azure Authentication Setup**:
+   - When using OIDC: Create User Assigned Managed Identity and federated credentials
+   - When not using OIDC: Create Service Principal
+4. **RBAC Configuration**: Assign Owner role to required scopes (subscription, management group)
+5. **GitHub Configuration**:
+   - Configure repository secrets
+   - Create environment (avm-validation)
+   - Enable workflows
+6. **Workflow Configuration**: Disable all workflows (following contribution guidelines)
 
-## 注意事項
+## Important Notes
 
-- スクリプトは任意の場所から実行可能ですが、このリポジトリのルートから実行することを推奨します
-- OIDC 認証の使用を強く推奨します（セキュリティ上の理由）
-- 管理グループ ID が提供されない場合、管理グループスコープの権限は設定されません
-- スクリプト実行後、GitHub Actions を手動で有効化する必要があります
+- The script can be run from any location, but running from this repository root is recommended
+- Using OIDC authentication is strongly recommended (for security reasons)
+- If no management group ID is provided, management group scope permissions will not be configured
+- After script execution, GitHub Actions must be manually enabled
+- All workflows will be disabled after setup (following contribution guidelines)
 
-## トラブルシューティング
+## Troubleshooting
 
-### よくある問題
+### Common Issues
 
-1. **GitHub CLI 認証エラー**: `gh auth login` で再認証してください
-2. **Azure CLI 認証エラー**: `az login` で適切なテナントにログインしてください
-3. **権限エラー**: 指定したサブスクリプションに対する Owner 権限があることを確認してください
-4. **リソース名の競合**: `--token-nameprefix` にユニークな値を使用してください
+1. **GitHub CLI authentication error**: Re-authenticate with `gh auth login`
+2. **Azure CLI authentication error**: Log in to the appropriate tenant with `az login`
+3. **Permission error**: Ensure you have Owner permissions on the specified subscription
+4. **Resource name conflict**: Use a unique value for `--token-nameprefix`
 
-### ログの確認
+### Log Review
 
-スクリプトは実行中に詳細なログを出力します。エラーが発生した場合は、エラーメッセージを確認して適切に対処してください。
+The script outputs detailed logs during execution. If errors occur, check the error messages and take appropriate action.
 
-## 参考リンク
+## Reference Links
 
 - [Azure Verified Modules - Bicep Contribution Flow](https://azure.github.io/Azure-Verified-Modules/contributing/bicep/bicep-contribution-flow/)
 - [GitHub CLI Documentation](https://cli.github.com/manual/)
 - [Azure CLI Documentation](https://docs.microsoft.com/en-us/cli/azure/)
 
-## ライセンス
+## License
 
-このスクリプトは元の Azure/bicep-registry-modules リポジトリと同じライセンスの下で提供されます。
+This script is provided under the same license as the original Azure/bicep-registry-modules repository.
